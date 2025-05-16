@@ -9,8 +9,6 @@ import (
 	_ "github.com/kiriksik/TestTaskEffectiveMobile/docs"
 	"github.com/kiriksik/TestTaskEffectiveMobile/internal/models"
 	service "github.com/kiriksik/TestTaskEffectiveMobile/internal/services"
-	swaggerFiles "github.com/swaggo/files"
-	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type ApiHandler struct {
@@ -31,7 +29,6 @@ func InitializeMux(ac *config.ApiConfig) *http.ServeMux {
 	serveMux.HandleFunc("GET /api/humans", ah.getHumans)
 	serveMux.HandleFunc("PUT /api/humans/{humanID}", ah.updateHuman)
 	serveMux.HandleFunc("DELETE /api/humans/{humanID}", ah.deleteHuman)
-	serveMux.HandleFunc("GET /swagger/*any", httpSwagger.WrapHandler(swaggerFiles.Handler))
 	return serveMux
 }
 
@@ -62,12 +59,12 @@ func respondWithJson(rw http.ResponseWriter, code int, payload interface{}) {
 }
 
 // @Summary Создание человека
-// @Description	Создаёт пользователя по полям имени, фамилии и отчества(необязательно)
+// @Description	Создаёт человека по полям имени, фамилии и отчества(необязательно)
 // @Tags	humans
 // @Accept	json
 // @Produce	json
-// @Param	request body models.HumanRequest true "query params"
-// @Success	201 {object} database.Human
+// @Param	request body models.HumanRequest true "Данные человека"
+// @Success	201 {object} models.HumanResponse
 // @Router /api/humans [post]
 func (ah *ApiHandler) createHuman(rw http.ResponseWriter, req *http.Request) {
 
@@ -90,6 +87,14 @@ func (ah *ApiHandler) createHuman(rw http.ResponseWriter, req *http.Request) {
 	respondWithJson(rw, status, human)
 }
 
+// @Summary Удаление человека
+// @Description	Удаляет человека по его ID
+// @Tags	humans
+// @Accept	json
+// @Produce	json
+// @Param	humanID path string true "ID человека"
+// @Success	201 {object} models.HumanResponse
+// @Router /api/humans [delete]
 func (ah *ApiHandler) deleteHuman(rw http.ResponseWriter, req *http.Request) {
 	humanService := service.UserService{ApiConfig: ah.ApiCfg}
 	humanID := req.PathValue("humanID")
@@ -107,6 +112,13 @@ func (ah *ApiHandler) deleteHuman(rw http.ResponseWriter, req *http.Request) {
 	respondWithJson(rw, status, human)
 }
 
+// @Summary Получение человека по ID
+// @Description	Возвращает данные человека по его ID
+// @Tags	humans
+// @Produce	json
+// @Param	humanID path string true "ID человека"
+// @Success	200 {object} models.HumanResponse
+// @Router /api/humans/{humanID} [get]
 func (ah *ApiHandler) getHumanByID(rw http.ResponseWriter, req *http.Request) {
 	humanService := service.UserService{ApiConfig: ah.ApiCfg}
 	humanID := req.PathValue("humanID")
@@ -124,6 +136,12 @@ func (ah *ApiHandler) getHumanByID(rw http.ResponseWriter, req *http.Request) {
 	respondWithJson(rw, status, human)
 }
 
+// @Summary Получение списка людей
+// @Description	Возвращает всех человека
+// @Tags	humans
+// @Produce	json
+// @Success	200 {array} models.HumanResponse
+// @Router /api/humans [get]
 func (ah *ApiHandler) getHumans(rw http.ResponseWriter, req *http.Request) {
 	humanService := service.UserService{ApiConfig: ah.ApiCfg}
 
@@ -135,6 +153,16 @@ func (ah *ApiHandler) getHumans(rw http.ResponseWriter, req *http.Request) {
 
 	respondWithJson(rw, status, humans)
 }
+
+// @Summary Обновление человека
+// @Description	Обновляет данные человека по его ID
+// @Tags	humans
+// @Accept	json
+// @Produce	json
+// @Param	humanID path string true "ID человека"
+// @Param	request body models.HumanRequest true "данные человека"
+// @Success	200 {object} models.HumanResponse
+// @Router /api/humans/{humanID} [put]
 func (ah *ApiHandler) updateHuman(rw http.ResponseWriter, req *http.Request) {
 	humanService := service.UserService{ApiConfig: ah.ApiCfg}
 	var reqBodyData models.HumanRequest

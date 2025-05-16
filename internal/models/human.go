@@ -6,6 +6,16 @@ type HumanRequest struct {
 	Patronymic string `json:"patronymic,omitempty"`
 }
 
+type HumanResponse struct {
+	ID         string  `json:"id"`
+	Name       string  `json:"name"`
+	Surname    string  `json:"surname"`
+	Patronymic *string `json:"patronymic,omitempty"`
+	Age        int     `json:"age"`
+	Gender     string  `json:"gender"`
+	Country    string  `json:"country"`
+}
+
 type AgeResponse struct {
 	Count int    `json:"count"`
 	Name  string `json:"name"`

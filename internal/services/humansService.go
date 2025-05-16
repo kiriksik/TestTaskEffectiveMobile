@@ -18,9 +18,9 @@ type UserService struct {
 	ApiConfig *config.ApiConfig
 }
 
-func (humanService *UserService) CreateHuman(ctx context.Context, req *models.HumanRequest) (database.Human, int, error) {
+func (humanService *UserService) CreateHuman(ctx context.Context, req *models.HumanRequest) (models.HumanResponse, int, error) {
 	if req == nil {
-		return database.Human{}, http.StatusBadRequest, fmt.Errorf("bad request")
+		return models.HumanResponse{}, http.StatusBadRequest, fmt.Errorf("bad request")
 	}
 
 	patronymicValid := true
@@ -30,7 +30,7 @@ func (humanService *UserService) CreateHuman(ctx context.Context, req *models.Hu
 
 	params, status, err := GetParamsFromAPI(req.Name)
 	if err != nil {
-		return database.Human{}, status, err
+		return models.HumanResponse{}, status, err
 	}
 
 	human, err := humanService.ApiConfig.Queries.CreateHuman(ctx,
@@ -43,67 +43,105 @@ func (humanService *UserService) CreateHuman(ctx context.Context, req *models.Hu
 			Country:    params.Country,
 		})
 	if err != nil {
-		return database.Human{}, http.StatusInternalServerError, fmt.Errorf("error saving human: %s", err)
+		return models.HumanResponse{}, http.StatusInternalServerError, fmt.Errorf("error saving human: %s", err)
 	}
 	fmt.Println("saved human:", human)
-	return human, http.StatusCreated, nil
+	return models.HumanResponse{
+		ID:         human.ID.String(),
+		Name:       human.Name,
+		Surname:    human.Surname,
+		Patronymic: &human.Patronymic.String,
+		Age:        int(human.Age),
+		Country:    human.Country,
+		Gender:     human.Gender,
+	}, http.StatusCreated, nil
 }
 
-func (humanService *UserService) GetHumanByID(ctx context.Context, id string) (database.Human, int, error) {
+func (humanService *UserService) GetHumanByID(ctx context.Context, id string) (models.HumanResponse, int, error) {
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return database.Human{}, http.StatusBadRequest, fmt.Errorf("bad uuid: %s", err)
+		return models.HumanResponse{}, http.StatusBadRequest, fmt.Errorf("bad uuid: %s", err)
 	}
 
 	human, err := humanService.ApiConfig.Queries.GetHumanByID(ctx, uid)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return database.Human{}, http.StatusNotFound, fmt.Errorf("human does not exists")
+			return models.HumanResponse{}, http.StatusNotFound, fmt.Errorf("human does not exists")
 		}
-		return database.Human{}, http.StatusInternalServerError, fmt.Errorf("failed to get human: %s", err)
+		return models.HumanResponse{}, http.StatusInternalServerError, fmt.Errorf("failed to get human: %s", err)
 	}
 	fmt.Println("request for get human:", human)
-	return human, http.StatusOK, nil
+	return models.HumanResponse{
+		ID:         human.ID.String(),
+		Name:       human.Name,
+		Surname:    human.Surname,
+		Patronymic: &human.Patronymic.String,
+		Age:        int(human.Age),
+		Country:    human.Country,
+		Gender:     human.Gender,
+	}, http.StatusOK, nil
 }
 
-func (humanService *UserService) GetHumans(ctx context.Context) ([]database.Human, int, error) {
+func (humanService *UserService) GetHumans(ctx context.Context) ([]models.HumanResponse, int, error) {
 
 	humans, err := humanService.ApiConfig.Queries.GetHumans(ctx)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return []database.Human{}, http.StatusNotFound, fmt.Errorf("humans does not exists")
+			return []models.HumanResponse{}, http.StatusNotFound, fmt.Errorf("humans does not exists")
 		}
-		return []database.Human{}, http.StatusInternalServerError, fmt.Errorf("failed to get humans: %s", err)
+		return []models.HumanResponse{}, http.StatusInternalServerError, fmt.Errorf("failed to get humans: %s", err)
 	}
 	fmt.Println("request for get humans")
-	return humans, http.StatusOK, nil
+
+	responseHumans := make([]models.HumanResponse, len(humans))
+	for i, human := range humans {
+		responseHumans[i] = models.HumanResponse{
+			ID:         human.ID.String(),
+			Name:       human.Name,
+			Surname:    human.Surname,
+			Patronymic: &human.Patronymic.String,
+			Age:        int(human.Age),
+			Country:    human.Country,
+			Gender:     human.Gender,
+		}
+	}
+
+	return responseHumans, http.StatusOK, nil
 }
 
-func (humanService *UserService) DeleteHuman(ctx context.Context, id string) (database.Human, int, error) {
+func (humanService *UserService) DeleteHuman(ctx context.Context, id string) (models.HumanResponse, int, error) {
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return database.Human{}, http.StatusBadRequest, fmt.Errorf("bad uuid: %s", err)
+		return models.HumanResponse{}, http.StatusBadRequest, fmt.Errorf("bad uuid: %s", err)
 	}
 
 	human, err := humanService.ApiConfig.Queries.DeleteHuman(ctx, uid)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return database.Human{}, http.StatusNotFound, fmt.Errorf("human does not exists")
+			return models.HumanResponse{}, http.StatusNotFound, fmt.Errorf("human does not exists")
 		}
-		return database.Human{}, http.StatusInternalServerError, fmt.Errorf("failed to delete human: %s", err)
+		return models.HumanResponse{}, http.StatusInternalServerError, fmt.Errorf("failed to delete human: %s", err)
 	}
 	fmt.Println("deleted human:", human)
-	return human, http.StatusOK, nil
+	return models.HumanResponse{
+		ID:         human.ID.String(),
+		Name:       human.Name,
+		Surname:    human.Surname,
+		Patronymic: &human.Patronymic.String,
+		Age:        int(human.Age),
+		Country:    human.Country,
+		Gender:     human.Gender,
+	}, http.StatusOK, nil
 }
 
-func (humanService *UserService) UpdateHuman(ctx context.Context, req *models.HumanRequest, id string) (database.Human, int, error) {
+func (humanService *UserService) UpdateHuman(ctx context.Context, req *models.HumanRequest, id string) (models.HumanResponse, int, error) {
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return database.Human{}, http.StatusBadRequest, fmt.Errorf("bad uuid: %s", err)
+		return models.HumanResponse{}, http.StatusBadRequest, fmt.Errorf("bad uuid: %s", err)
 	}
 
 	if req == nil {
-		return database.Human{}, http.StatusBadRequest, fmt.Errorf("bad request")
+		return models.HumanResponse{}, http.StatusBadRequest, fmt.Errorf("bad request")
 	}
 
 	patronymicValid := true
@@ -113,7 +151,7 @@ func (humanService *UserService) UpdateHuman(ctx context.Context, req *models.Hu
 
 	params, status, err := GetParamsFromAPI(req.Name)
 	if err != nil {
-		return database.Human{}, status, err
+		return models.HumanResponse{}, status, err
 	}
 
 	human, err := humanService.ApiConfig.Queries.UpdateHuman(ctx,
@@ -127,11 +165,19 @@ func (humanService *UserService) UpdateHuman(ctx context.Context, req *models.Hu
 			Country:    params.Country,
 		})
 	if err != nil {
-		return database.Human{}, http.StatusInternalServerError, fmt.Errorf("error updating human: %s", err)
+		return models.HumanResponse{}, http.StatusInternalServerError, fmt.Errorf("error updating human: %s", err)
 	}
 	fmt.Println("updated human:", human)
 
-	return human, http.StatusOK, nil
+	return models.HumanResponse{
+		ID:         human.ID.String(),
+		Name:       human.Name,
+		Surname:    human.Surname,
+		Patronymic: &human.Patronymic.String,
+		Age:        int(human.Age),
+		Country:    human.Country,
+		Gender:     human.Gender,
+	}, http.StatusOK, nil
 }
 
 func GetParamsFromAPI(name string) (models.ExtraParamsResponse, int, error) {

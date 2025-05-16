@@ -1,4 +1,132 @@
+definitions:
+  models.HumanRequest:
+    properties:
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+  models.HumanResponse:
+    properties:
+      age:
+        type: integer
+      country:
+        type: string
+      gender:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /api/humans:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет человека по его ID
+      parameters:
+      - description: ID человека
+        in: path
+        name: humanID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.HumanResponse'
+      summary: Удаление человека
+      tags:
+      - humans
+    get:
+      description: Возвращает всех человека
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.HumanResponse'
+            type: array
+      summary: Получение списка людей
+      tags:
+      - humans
+    post:
+      consumes:
+      - application/json
+      description: Создаёт человека по полям имени, фамилии и отчества(необязательно)
+      parameters:
+      - description: Данные человека
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.HumanRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.HumanResponse'
+      summary: Создание человека
+      tags:
+      - humans
+  /api/humans/{humanID}:
+    get:
+      description: Возвращает данные человека по его ID
+      parameters:
+      - description: ID человека
+        in: path
+        name: humanID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HumanResponse'
+      summary: Получение человека по ID
+      tags:
+      - humans
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные человека по его ID
+      parameters:
+      - description: ID человека
+        in: path
+        name: humanID
+        required: true
+        type: string
+      - description: данные человека
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.HumanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HumanResponse'
+      summary: Обновление человека
+      tags:
+      - humans
 swagger: "2.0"

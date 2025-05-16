@@ -14,7 +14,203 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/api/humans": {
+            "get": {
+                "description": "Возвращает всех человека",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "humans"
+                ],
+                "summary": "Получение списка людей",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.HumanResponse"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Создаёт человека по полям имени, фамилии и отчества(необязательно)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "humans"
+                ],
+                "summary": "Создание человека",
+                "parameters": [
+                    {
+                        "description": "Данные человека",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.HumanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.HumanResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет человека по его ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "humans"
+                ],
+                "summary": "Удаление человека",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID человека",
+                        "name": "humanID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.HumanResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/humans/{humanID}": {
+            "get": {
+                "description": "Возвращает данные человека по его ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "humans"
+                ],
+                "summary": "Получение человека по ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID человека",
+                        "name": "humanID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.HumanResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Обновляет данные человека по его ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "humans"
+                ],
+                "summary": "Обновление человека",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID человека",
+                        "name": "humanID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "данные человека",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.HumanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.HumanResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.HumanRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "patronymic": {
+                    "type": "string"
+                },
+                "surname": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.HumanResponse": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "patronymic": {
+                    "type": "string"
+                },
+                "surname": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
