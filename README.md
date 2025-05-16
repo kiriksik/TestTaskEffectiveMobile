@@ -1,6 +1,7 @@
 # Humans API
 
 Простое REST API для управления людьми (человеческими сущностями) в базе данных.
+Для запуска docker-compose up --build
 
 ## Технологии
 
@@ -11,3 +12,4 @@
 - **Docker & Docker Compose**
 - **.env**
 - **Swagger (swaggo/http-swagger)**
+
