@@ -3,12 +3,10 @@ module github.com/kiriksik/TestTaskEffectiveMobile
 go 1.24.1
 
 require (
-	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
 	github.com/swaggo/http-swagger v1.3.4
-	github.com/swaggo/http-swagger/example/go-chi v0.0.0-20240815064334-3a7ae3083475
 	github.com/swaggo/swag v1.16.4
 )
 

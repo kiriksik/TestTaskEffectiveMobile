@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/joho/godotenv"
 	config "github.com/kiriksik/TestTaskEffectiveMobile/config"
@@ -26,16 +27,20 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed loading enviroment: %s", err)
 	}
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatalf("failed to load port")
+	}
 
 	cfg := config.InitializeApiConfig()
 
 	serveMux := handler.InitializeMux(cfg)
 	serveMux.Handle("/swagger/", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
+		httpSwagger.URL(fmt.Sprintf("http://localhost%s/swagger/doc.json", port)),
 	))
 
 	httpServer := http.Server{
-		Addr:    ":8080",
+		Addr:    port,
 		Handler: serveMux,
 	}
 	fmt.Println("server started")
